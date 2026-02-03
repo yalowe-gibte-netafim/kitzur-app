@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kitzur Shulchan Aruch - Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            background-color: #f5f5f5;
+            direction: rtl;
+        }
+        
+        .header {
+            background-color: #2c5aa0;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            font-size: 16px;
+            color: #e3f2fd;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+        
+        .chapter-item {
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: center;
+            padding: 16px;
+            margin-bottom: 12px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .chapter-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .chapter-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #2c5aa0;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-left: 12px;
+        }
+        
+        .chapter-title {
+            flex: 1;
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .chapter-detail {
+            display: none;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .chapter-detail.active {
+            display: block;
+        }
+        
+        .detail-header {
+            background-color: #2c5aa0;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .detail-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .section {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .section-header {
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .section-number {
+            color: #2c5aa0;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .section-content {
+            font-size: 16px;
+            line-height: 24px;
+            color: #333;
+            margin-bottom: 12px;
+        }
+        
+        .sephardic-note {
+            background-color: #fff9e6;
+            padding: 12px;
+            border-radius: 8px;
+            border-right: 4px solid #ffc107;
+            margin-top: 8px;
+        }
+        
+        .sephardic-note-title {
+            color: #f57f17;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .sephardic-note-text {
+            font-size: 14px;
+            line-height: 22px;
+            color: #555;
+        }
+        
+        .back-button {
+            background-color: #2c5aa0;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        
+        .back-button:hover {
+            background-color: #1e3a6f;
+        }
+        
+        .info-box {
+            background-color: #e3f2fd;
+            padding: 16px;
+            border-radius: 8px;
+            border-right: 4px solid #2c5aa0;
+            margin: 20px 0;
+        }
+        
+        .info-box h3 {
+            color: #2c5aa0;
+            margin-bottom: 8px;
+        }
+        
+        .info-box p {
+            color: #333;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>קיצור שולחן ערוך</h1>
+        <p>מנהג ספרדים - על פי יל"י</p>
+    </div>
+    
+    <div class="container">
+        <div class="info-box">
+            <h3>📱 אפליקציה מלאה</h3>
+            <p>זוהי דמו של האפליקציה. האפליקציה המלאה בנויה ב-React Native ו-Expo ותומכת ב-iOS ו-Web.</p>
+        </div>
+        
+        <div id="chapter-list">
+            <div class="chapter-item" onclick="showChapter(1)">
+                <div class="chapter-number">1</div>
+                <div class="chapter-title">הלכות השכמת הבוקר</div>
+            </div>
+            
+            <div class="chapter-item" onclick="showChapter(2)">
+                <div class="chapter-number">2</div>
+                <div class="chapter-title">הלכות ברכות השחר</div>
+            </div>
+            
+            <div class="chapter-item" onclick="showChapter(3)">
+                <div class="chapter-number">3</div>
+                <div class="chapter-title">הלכות ציצית</div>
+            </div>
+            
+            <div class="chapter-item" onclick="showChapter(4)">
+                <div class="chapter-number">4</div>
+                <div class="chapter-title">הלכות תפילין</div>
+            </div>
+            
+            <div class="chapter-item" onclick="showChapter(5)">
+                <div class="chapter-number">5</div>
+                <div class="chapter-title">הלכות תפילה</div>
+            </div>
+        </div>
+        
+        <div id="chapter-detail-1" class="chapter-detail">
+            <button class="back-button" onclick="hideChapter()">← חזרה</button>
+            
+            <div class="detail-header">
+                <div>סימן 1</div>
+                <div class="detail-title">הלכות השכמת הבוקר</div>
+            </div>
+            
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">סעיף 1</div>
+                    <div class="section-title">התעוררות מהשינה</div>
+                </div>
+                <div class="section-content">
+                    יתגבר כארי לעמוד בבוקר לעבודת בוראו, והוא יעיר השחר. וצריך להזהר מאוד בדבר זה, כי היא התחלת העבודה. ואם יהיה רפה בתחילה, יהיה רפה בכל היום.
+                </div>
+                <div class="sephardic-note">
+                    <div class="sephardic-note-title">📖 הערה ספרדית (ע"פ יל"י):</div>
+                    <div class="sephardic-note-text">
+                        לפי מנהג הספרדים עפ"י הרמב"ם והשלחן ערוך, יש להקפיד על התעוררות מיד כשיקיץ, ולא להאריך בשכיבה במיטה. וכמבואר ביו"ד סימן א'. והחפץ לקיים מצות "ואהבת" צריך להשתדל לקום עם עמוד השחר. (יל"י או"ח א', ב')
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">סעיף 2</div>
+                    <div class="section-title">נטילת ידיים שחרית</div>
+                </div>
+                <div class="section-content">
+                    מיד כשעומד משנתו, יטול ידיו שלוש פעמים לסירוגין, מפני שרוח רעה שורה על הידים בשינה. ואין להלוך ארבע אמות קודם נטילת ידיים אלא מחמת צורך גדול.
+                </div>
+                <div class="sephardic-note">
+                    <div class="sephardic-note-title">📖 הערה ספרדית (ע"פ יל"י):</div>
+                    <div class="sephardic-note-text">
+                        הספרדים נוהגים כדעת מרן השו"ע שיש ליטול ידיים ג' פעמים לסירוגין מיד. וצריך להזהר מאוד בנגיעה בפה או באף קודם נטילת ידיים. אם אין מים אצלו, מותר להלך יותר מד' אמות עד שימצא מים. (יל"י או"ח א', ה')
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function showChapter(num) {
+            // Hide all chapters
+            document.querySelectorAll('.chapter-detail').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Hide chapter list
+            document.getElementById('chapter-list').style.display = 'none';
+            
+            // Show selected chapter
+            const chapter = document.getElementById('chapter-detail-' + num);
+            if (chapter) {
+                chapter.classList.add('active');
+            }
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+        
+        function hideChapter() {
+            // Hide all chapters
+            document.querySelectorAll('.chapter-detail').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Show chapter list
+            document.getElementById('chapter-list').style.display = 'block';
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+    </script>
+</body>
+</html>
