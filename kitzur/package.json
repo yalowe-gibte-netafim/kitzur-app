@@ -14,6 +14,7 @@
     "fetch:shnayim-mikra": "node ./scripts/fetch_shnayim_mikra.js",
     "fetch:parshat-hamann": "node ./scripts/fetch_parshat_hamann.js",
     "fetch:iggeret-haramban": "node ./scripts/fetch_iggeret_haramban.js",
+    "fetch:blessings": "node ./scripts/fetch_blessings.js",
     "fix:parshiot": "node ./scripts/fix_parshiot.js",
     "clean:parshiot": "node ./scripts/clean_parshiot.js",
     "clean:html": "node ./scripts/clean_all_html_tags.js",

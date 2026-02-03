@@ -1,0 +1,133 @@
+import { StyleSheet, ScrollView, ActivityIndicator, View } from 'react-native';
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
+import { useState, useEffect } from 'react';
+
+interface BoreiNefashot {
+  name: string;
+  hebrewName: string;
+  category: string;
+  description: string;
+  text: string;
+}
+
+export default function BoreiNefashotScreen() {
+  const [blessing, setBlessing] = useState<BoreiNefashot | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadBlessing();
+  }, []);
+
+  async function loadBlessing() {
+    try {
+      const data = require('@/content/special/borei_nefashot.json');
+      setBlessing(data);
+    } catch (error) {
+      console.error('Error loading Borei Nefashot:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <ThemedView style={styles.container}>
+        <ThemedView style={styles.loadingContainer}>
+          <ActivityIndicator size="large" />
+          <ThemedText style={styles.loadingText}>טוען...</ThemedText>
+        </ThemedView>
+      </ThemedView>
+    );
+  }
+
+  if (!blessing) {
+    return (
+      <ThemedView style={styles.container}>
+        <ThemedView style={styles.errorContainer}>
+          <ThemedText style={styles.errorText}>לא נמצאה הברכה</ThemedText>
+        </ThemedView>
+      </ThemedView>
+    );
+  }
+
+  return (
+    <ThemedView style={styles.container}>
+      <ScrollView style={styles.scrollView}>
+        <ThemedView style={styles.header}>
+          <ThemedText type="title" style={styles.title}>
+            {blessing.hebrewName}
+          </ThemedText>
+          <ThemedText style={styles.description}>
+            {blessing.description}
+          </ThemedText>
+        </ThemedView>
+
+        <ThemedView style={styles.content}>
+          <ThemedText style={styles.blessingText}>
+            {blessing.text}
+          </ThemedText>
+        </ThemedView>
+      </ScrollView>
+    </ThemedView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    fontSize: 18,
+    color: '#ff3b30',
+  },
+  header: {
+    padding: 20,
+    paddingTop: 60,
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  description: {
+    fontSize: 14,
+    opacity: 0.6,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  content: {
+    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  blessingText: {
+    fontSize: 20,
+    lineHeight: 34,
+    textAlign: 'right',
+    fontFamily: 'System',
+  },
+});

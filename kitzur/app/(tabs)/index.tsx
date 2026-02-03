@@ -106,6 +106,18 @@ export default function HomeScreen() {
     router.push('/iggeret-haramban');
   };
 
+  const handleBirkatHaMazon = () => {
+    router.push('/birkat-hamazon');
+  };
+
+  const handleBoreiNefashot = () => {
+    router.push('/borei-nefashot');
+  };
+
+  const handleMeeinShalosh = () => {
+    router.push('/meein-shalosh');
+  };
+
   if (loading) {
     return (
       <ThemedView style={[styles.loadingContainer, { backgroundColor: colors.background.base }]}>
@@ -171,6 +183,9 @@ export default function HomeScreen() {
             onShnayimMikra={handleShnayimMikra}
             onParshatHaMann={handleParshatHaMann}
             onIggeretHaRamban={handleIggeretHaRamban}
+            onBirkatHaMazon={handleBirkatHaMazon}
+            onBoreiNefashot={handleBoreiNefashot}
+            onMeeinShalosh={handleMeeinShalosh}
           />
         </View>
 
