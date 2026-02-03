@@ -1,3 +1,5 @@
+import chapterRegistry, { chapterIds } from '../content/chapters-index';
+
 export type Section = { id: string; section: number; text: string };
 export type Chapter = {
   id: string;
@@ -7,14 +9,8 @@ export type Chapter = {
   version: number;
 };
 
-// List all available chapter IDs
-const CHAPTER_IDS = [
-  "siman-001",
-  "siman-002",
-  "siman-003",
-  "siman-004",
-  "siman-005"
-];
+// Use statically imported chapter IDs
+const CHAPTER_IDS = chapterIds;
 
 /**
  * Load all chapters from JSON files
@@ -34,31 +30,11 @@ export async function listChapters(): Promise<Chapter[]> {
  */
 export async function getChapter(chapterId: string): Promise<Chapter | null> {
   try {
-    // Use require for static imports to avoid Metro bundler issues
-    let chapter: Chapter | null = null;
-    
-    switch(chapterId) {
-      case 'siman-001':
-        chapter = require('../content/chapters/siman-001.json');
-        break;
-      case 'siman-002':
-        chapter = require('../content/chapters/siman-002.json');
-        break;
-      case 'siman-003':
-        chapter = require('../content/chapters/siman-003.json');
-        break;
-      case 'siman-004':
-        chapter = require('../content/chapters/siman-004.json');
-        break;
-      case 'siman-005':
-        chapter = require('../content/chapters/siman-005.json');
-        break;
-      default:
-        return null;
-    }
-    
-    return chapter;
-  } catch {
+    // Use static chapter registry
+    const chapter = chapterRegistry[chapterId];
+    return chapter ? (chapter as Chapter) : null;
+  } catch (error) {
+    console.error(`Failed to load chapter: ${chapterId}`, error);
     return null;
   }
 }

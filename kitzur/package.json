@@ -9,6 +9,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
+    "fetch:sa": "node tools/fetch-shulchan-aruch.mjs",
     "fetch:shulchan-aruch": "node ./scripts/fetch_shulchan_aruch.js",
     "test:sefaria": "node ./scripts/test_sefaria_api.js",
     "convert:shulchan-aruch": "node ./scripts/convert_to_app_format.js"
