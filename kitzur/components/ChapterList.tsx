@@ -8,6 +8,7 @@ import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
 import { Chapter } from "../utils/contentLoader";
 import { useApp } from "@/contexts/AppContext";
+import { Colors, spacing } from "@/constants/theme";
 
 export default function ChapterList({ chapters }: { chapters: Chapter[] }) {
   const { getTextSizeMultiplier } = useApp();
@@ -55,7 +56,7 @@ export default function ChapterList({ chapters }: { chapters: Chapter[] }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.light.background.base,
   },
   listContainer: {
     paddingHorizontal: 0,
@@ -64,15 +65,15 @@ const styles = StyleSheet.create({
   chapterCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
+    backgroundColor: Colors.light.background.surface,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5E5',
+    borderBottomColor: Colors.light.border.default,
   },
   pressed: {
     opacity: 0.5,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.light.background.base,
   },
   cardContent: {
     flex: 1,
@@ -81,21 +82,21 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'right',
     marginBottom: 4,
-    color: '#000000',
+    color: Colors.light.primary.main,
     fontSize: 17,
   },
   chapterTitle: {
     textAlign: 'right',
     marginBottom: 0,
     lineHeight: 21,
-    color: '#666666',
+    color: Colors.light.text.secondary,
     fontSize: 15,
   },
   sectionCount: {
     fontSize: 13,
     textAlign: 'right',
     opacity: 0.5,
-    color: '#999999',
+    color: Colors.light.text.secondary,
   },
   chevron: {
     marginLeft: 8,
@@ -103,7 +104,7 @@ const styles = StyleSheet.create({
   chevronText: {
     fontSize: 20,
     opacity: 0.3,
-    color: '#000000',
+    color: Colors.light.secondary.main,
   },
   spacer: {
     height: 40,

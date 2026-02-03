@@ -41,3 +41,6 @@ app-example
 # generated native folders
 /ios
 /android
+
+# Large data files (optional - include if needed for distribution)
+data/shulchan_aruch/*.json

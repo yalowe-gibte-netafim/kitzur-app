@@ -6,6 +6,7 @@ import { I18nManager } from 'react-native';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { AppProvider } from '@/contexts/AppContext';
+import { Colors } from '@/constants/theme';
 
 // Enable RTL for Hebrew support
 I18nManager.allowRTL(true);
@@ -24,9 +25,9 @@ export default function RootLayout() {
         <Stack
           screenOptions={{
             headerStyle: {
-              backgroundColor: '#8B7BB8',
+              backgroundColor: Colors.light.primary.main,
             },
-            headerTintColor: '#FFFFFF',
+            headerTintColor: Colors.light.text.onPrimary,
             headerTitleStyle: {
               fontWeight: '600',
             },
@@ -34,17 +35,31 @@ export default function RootLayout() {
         >
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen 
+            name="browse" 
+            options={{ 
+              title: 'כל הסימנים',
+              headerBackTitle: 'חזרה',
+            }} 
+          />
+          <Stack.Screen 
+            name="bookmarks" 
+            options={{ 
+              title: 'סימניות',
+              headerBackTitle: 'חזרה',
+            }} 
+          />
+          <Stack.Screen 
             name="chapter/[id]" 
             options={{ 
-              headerShown: false,
               title: 'פרק',
+              headerBackTitle: 'חזרה',
             }} 
           />
           <Stack.Screen 
             name="section/[id]" 
             options={{ 
-              headerShown: false,
               title: 'סעיף',
+              headerBackTitle: 'חזרה',
             }} 
           />
           <Stack.Screen 
@@ -53,9 +68,9 @@ export default function RootLayout() {
               presentation: 'modal', 
               title: 'הגדרות',
               headerStyle: {
-                backgroundColor: '#8B7BB8',
+                backgroundColor: Colors.light.primary.main,
               },
-              headerTintColor: '#FFFFFF',
+              headerTintColor: Colors.light.text.onPrimary,
             }} 
           />
         </Stack>

@@ -11,7 +11,8 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import { findSectionById, type Chapter, type Section } from '@/utils/contentLoader';
 import { useApp } from '@/contexts/AppContext';
-import { setLastRead } from '@/utils/storage';
+import { saveLastRead, updateStreak } from '@/utils/progress';
+import { Colors, spacing } from '@/constants/theme';
 
 export default function SectionDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -31,8 +32,22 @@ export default function SectionDetailScreen() {
     if (result) {
       setChapter(result.chapter);
       setSection(result.section);
-      // Save last read position
-      await setLastRead(result.chapter.id, result.section.id);
+      
+      // Save last read position with full data
+      const lastReadData = {
+        chapterId: result.chapter.id,
+        sectionId: result.section.id,
+        chapterLabel: result.chapter.chapterLabel,
+        chapterTitle: result.chapter.title,
+        sectionNumber: result.section.section,
+        timestamp: Date.now(),
+      };
+      console.log('💾 Saving last read:', lastReadData);
+      await saveLastRead(lastReadData);
+      
+      // Update daily streak
+      const newStreak = await updateStreak();
+      console.log('🔥 Streak updated:', newStreak);
     }
     setLoading(false);
   }
@@ -101,7 +116,7 @@ export default function SectionDetailScreen() {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <ThemedView style={styles.header}>
+      <ThemedView style={styles.contentHeader}>
         <ThemedText style={styles.breadcrumb}>
           {chapter.chapterLabel}
         </ThemedText>
@@ -132,7 +147,7 @@ export default function SectionDetailScreen() {
           <Ionicons 
             name={bookmarked ? 'bookmark' : 'bookmark-outline'} 
             size={24} 
-            color="#8B7BB8" 
+            color={Colors.light.primary.main} 
           />
           <Text style={styles.actionText}>
             {bookmarked ? 'שמור' : 'שמור'}
@@ -140,12 +155,12 @@ export default function SectionDetailScreen() {
         </Pressable>
 
         <Pressable style={styles.actionButton} onPress={handleShare}>
-          <Ionicons name="share-outline" size={24} color="#8B7BB8" />
+          <Ionicons name="share-outline" size={24} color={Colors.light.primary.main} />
           <Text style={styles.actionText}>שתף</Text>
         </Pressable>
 
         <Pressable style={styles.actionButton} onPress={handleCopy}>
-          <Ionicons name="copy-outline" size={24} color="#8B7BB8" />
+          <Ionicons name="copy-outline" size={24} color={Colors.light.primary.main} />
           <Text style={styles.actionText}>העתק</Text>
         </Pressable>
       </View>
@@ -157,28 +172,29 @@ export default function SectionDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.light.background.base,
   },
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 16,
+  contentHeader: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.md,
     alignItems: 'center',
-    backgroundColor: '#8B7BB8',
+    backgroundColor: Colors.light.surface.card,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.light.border.default,
   },
   breadcrumb: {
     fontSize: 15,
     textAlign: 'center',
     marginBottom: 6,
-    color: '#FFFFFF',
+    color: Colors.light.text.secondary,
     fontWeight: '500',
-    opacity: 0.9,
   },
   chapterTitle: {
     fontSize: 18,
     textAlign: 'center',
     marginBottom: 12,
-    color: '#FFFFFF',
+    color: Colors.light.text.primary,
     fontWeight: '600',
   },
   dividerContainer: {
@@ -187,34 +203,33 @@ const styles = StyleSheet.create({
   divider: {
     width: 60,
     height: 2,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.light.accent.bronze,
     opacity: 0.5,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
     textAlign: 'center',
-    color: '#FFFFFF',
-    opacity: 0.9,
+    color: Colors.light.text.primary,
   },
   contentCard: {
-    backgroundColor: '#FFFFFF',
-    padding: 24,
+    backgroundColor: Colors.light.background.surface,
+    padding: spacing.lg,
   },
   text: {
     lineHeight: 32,
     textAlign: 'right',
-    color: '#000000',
+    color: Colors.light.text.primary,
     fontSize: 17,
   },
   actions: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-    backgroundColor: '#FFFFFF',
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    backgroundColor: Colors.light.background.surface,
     borderTopWidth: 1,
-    borderTopColor: '#E5E5E5',
+    borderTopColor: Colors.light.border.default,
   },
   actionButton: {
     alignItems: 'center',
@@ -225,7 +240,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
     fontSize: 13,
     fontWeight: '600',
-    color: '#8B7BB8',
+    color: Colors.light.primary.main,
   },
   footer: {
     height: 40,
@@ -234,6 +249,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     textAlign: 'center',
     marginTop: 40,
-    color: '#000000',
+    color: Colors.light.text.secondary,
   },
 });

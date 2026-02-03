@@ -8,6 +8,7 @@ import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
 import { Chapter } from "../utils/contentLoader";
 import { useApp } from "@/contexts/AppContext";
+import { Colors, spacing } from "@/constants/theme";
 
 export default function SectionList({ chapter }: { chapter: Chapter }) {
   const { getTextSizeMultiplier } = useApp();
@@ -52,7 +53,7 @@ export default function SectionList({ chapter }: { chapter: Chapter }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.light.background.base,
   },
   listContainer: {
     paddingHorizontal: 0,
@@ -60,15 +61,15 @@ const styles = StyleSheet.create({
   sectionCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
+    backgroundColor: Colors.light.background.surface,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5E5',
+    borderBottomColor: Colors.light.border.default,
   },
   pressed: {
     opacity: 0.5,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.light.background.base,
   },
   cardContent: {
     flex: 1,
@@ -77,14 +78,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'right',
     marginBottom: 6,
-    color: '#000000',
+    color: Colors.light.primary.main,
     fontSize: 16,
   },
   sectionPreview: {
     textAlign: 'right',
     opacity: 0.7,
     lineHeight: 21,
-    color: '#666666',
+    color: Colors.light.text.secondary,
     fontSize: 15,
   },
   chevron: {
@@ -93,7 +94,7 @@ const styles = StyleSheet.create({
   chevronText: {
     fontSize: 20,
     opacity: 0.3,
-    color: '#000000',
+    color: Colors.light.secondary.main,
   },
   spacer: {
     height: 40,

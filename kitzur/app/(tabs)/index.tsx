@@ -1,45 +1,169 @@
 /**
- * Home Screen - Main entry point showing list of chapters
+ * Home Screen - Dashboard with progress tracking and quick actions
  */
 import { useState, useEffect } from 'react';
-import { StyleSheet, ActivityIndicator, ScrollView, View } from 'react-native';
+import { StyleSheet, ActivityIndicator, ScrollView, View, Text } from 'react-native';
+import { useRouter, useFocusEffect } from 'expo-router';
+import { useCallback } from 'react';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import ChapterList from '@/components/ChapterList';
+import { ContinueLearningCard } from '@/components/ContinueLearningCard';
+import { ProgressRing } from '@/components/ProgressRing';
+import { QuickActionsGrid } from '@/components/QuickActionsGrid';
+import { StreakCounter } from '@/components/StreakCounter';
+import { DailyQuoteCard } from '@/components/DailyQuoteCard';
 import { listChapters, type Chapter } from '@/utils/contentLoader';
+import { 
+  getLastRead, 
+  getCompletedCount, 
+  getStreak, 
+  getDailyQuote,
+  getRandomHalachaId,
+  type LastRead,
+  type Streak,
+} from '@/utils/progress';
+import { Colors, spacing } from '@/constants/theme';
 
 export default function HomeScreen() {
-  const [chapters, setChapters] = useState<Chapter[]>([]);
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
+  const router = useRouter();
+  
   const [loading, setLoading] = useState(true);
+  const [lastRead, setLastRead] = useState<LastRead | null>(null);
+  const [completedCount, setCompletedCount] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
+  const [streak, setStreak] = useState<Streak>({ count: 0, lastDate: '' });
+  const [quote] = useState(getDailyQuote());
 
   useEffect(() => {
-    loadChapters();
+    loadDashboardData();
   }, []);
 
-  async function loadChapters() {
+  // Refresh dashboard when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadDashboardData();
+    }, [])
+  );
+
+  async function loadDashboardData() {
     setLoading(true);
-    const data = await listChapters();
-    setChapters(data);
-    setLoading(false);
+    try {
+      // Load chapters to get total count
+      const chapters = await listChapters();
+      setTotalCount(chapters.length);
+
+      // Load progress data
+      const lastReadData = await getLastRead();
+      console.log('📖 Last Read Data:', lastReadData);
+      setLastRead(lastReadData);
+
+      const completed = await getCompletedCount();
+      console.log('✅ Completed Count:', completed);
+      setCompletedCount(completed);
+
+      const streakData = await getStreak();
+      console.log('🔥 Streak Data:', streakData);
+      setStreak(streakData);
+    } catch (error) {
+      console.error('Failed to load dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
   }
+
+  const handleBrowse = () => {
+    router.push('/browse');
+  };
+
+  const handleSearch = () => {
+    router.push('/explore');
+  };
+
+  const handleBookmarks = () => {
+    router.push('/bookmarks');
+  };
+
+  const handleRandom = async () => {
+    const chapters = await listChapters();
+    if (chapters.length > 0) {
+      const randomId = getRandomHalachaId(chapters.length);
+      router.push(`/chapter/${randomId}`);
+    }
+  };
 
   if (loading) {
     return (
-      <ThemedView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
-        <ThemedText style={styles.loadingText}>טוען...</ThemedText>
+      <ThemedView style={[styles.loadingContainer, { backgroundColor: colors.background.base }]}>
+        <ActivityIndicator size="large" color={colors.primary.main} />
+        <ThemedText style={[styles.loadingText, { color: colors.text.primary }]}>טוען...</ThemedText>
       </ThemedView>
     );
   }
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedView style={styles.header}>
-        <ThemedText style={styles.title}>קיצור שולחן ערוך</ThemedText>
-        <ThemedText style={styles.subtitle}>נוסח עדות המזרח</ThemedText>
-        <View style={styles.divider} />
-      </ThemedView>
-      <ChapterList chapters={chapters} />
+    <ThemedView style={[styles.container, { backgroundColor: colors.background.base }]}>
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
+        <View style={[styles.header, { backgroundColor: colors.primary.main }]}>
+          <Text style={[styles.greeting, { color: colors.text.onPrimary, opacity: 0.9 }]}>
+            Welcome back
+          </Text>
+          <Text style={[styles.title, { color: colors.text.onPrimary }]}>
+            קיצור שולחן ערוך
+          </Text>
+        </View>
+
+        {/* Continue Learning */}
+        {lastRead && (
+          <View style={styles.section}>
+            <ContinueLearningCard lastRead={lastRead} />
+          </View>
+        )}
+
+        {/* Progress & Streak Row */}
+        <View style={styles.statsRow}>
+          <View style={[styles.statCard, { backgroundColor: colors.surface.card }]}>
+            <Text style={[styles.statLabel, { color: colors.text.secondary }]}>
+              Progress
+            </Text>
+            <View style={styles.progressRingContainer}>
+              <ProgressRing completed={completedCount} total={totalCount} size={100} />
+            </View>
+            <Text style={[styles.statDetail, { color: colors.text.secondary }]}>
+              {completedCount} of {totalCount} simanim
+            </Text>
+          </View>
+          
+          <View style={styles.streakContainer}>
+            <StreakCounter count={streak.count} />
+          </View>
+        </View>
+
+        {/* Quick Actions */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.text.primary }]}>
+            Quick Actions
+          </Text>
+          <QuickActionsGrid
+            onBrowse={handleBrowse}
+            onSearch={handleSearch}
+            onBookmarks={handleBookmarks}
+            onRandom={handleRandom}
+          />
+        </View>
+
+        {/* Daily Quote */}
+        <View style={styles.section}>
+          <DailyQuoteCard text={quote.text} source={quote.source} />
+        </View>
+      </ScrollView>
     </ThemedView>
   );
 }
@@ -47,44 +171,77 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  contentContainer: {
+    paddingBottom: 24,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: '#FFFFFF',
   },
   loadingText: {
     fontSize: 16,
-    color: '#000000',
   },
   header: {
     paddingTop: 60,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
+    paddingBottom: 24,
+    paddingHorizontal: spacing.lg,
     alignItems: 'center',
-    backgroundColor: '#8B7BB8',
+  },
+  greeting: {
+    fontSize: 14,
+    marginBottom: 4,
   },
   title: {
-    fontSize: 26,
+    fontSize: 28,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  section: {
+    paddingHorizontal: spacing.lg,
+    marginTop: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 12,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    paddingHorizontal: spacing.lg,
+    marginTop: 20,
+    gap: 12,
+  },
+  statCard: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+  },
+  statLabel: {
+    fontSize: 13,
     fontWeight: '600',
-    textAlign: 'center',
-    marginBottom: 4,
-    color: '#FFFFFF',
+    marginBottom: 12,
   },
-  subtitle: {
-    fontSize: 14,
-    textAlign: 'center',
-    marginBottom: 0,
-    color: '#FFFFFF',
-    opacity: 0.9,
+  progressRingContainer: {
+    marginVertical: 8,
   },
-  divider: {
-    width: 60,
-    height: 2,
-    backgroundColor: '#FFFFFF',
-    opacity: 0.5,
+  statDetail: {
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  streakContainer: {
+    flex: 1,
   },
 });

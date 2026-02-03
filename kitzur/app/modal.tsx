@@ -3,6 +3,7 @@ import { StyleSheet } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { Colors, spacing } from '@/constants/theme';
 
 export default function ModalScreen() {
   return (
@@ -20,8 +21,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
-    backgroundColor: '#FFFFFF',
+    padding: spacing.lg,
+    backgroundColor: Colors.light.background.base,
   },
   link: {
     marginTop: 15,

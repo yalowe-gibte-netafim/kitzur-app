@@ -2,13 +2,15 @@
  * Explore Screen - Search, Bookmarks, and Settings
  */
 import { useState } from 'react';
-import { StyleSheet, ScrollView, Pressable, View, TextInput, ActivityIndicator } from 'react-native';
+import { StyleSheet, ScrollView, Pressable, View, TextInput, ActivityIndicator, Alert } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useApp } from '@/contexts/AppContext';
 import { searchContent } from '@/utils/contentLoader';
+import { resetAllProgress } from '@/utils/progress';
+import { Colors, spacing } from '@/constants/theme';
 
 type SearchResult = {
   chapter: any;
@@ -40,6 +42,27 @@ export default function ExploreScreen() {
 
   function navigateToSection(sectionId: string) {
     router.push(`/section/${sectionId}`);
+  }
+
+  async function handleResetProgress() {
+    Alert.alert(
+      'איפוס התקדמות',
+      'האם אתה בטוח שברצונך לאפס את כל ההתקדמות? פעולה זו תמחק את כל הסימנים שסומנו כהושלמו, את מיקום הקריאה האחרון ואת רצף הלימוד היומי.',
+      [
+        {
+          text: 'ביטול',
+          style: 'cancel',
+        },
+        {
+          text: 'אפס',
+          style: 'destructive',
+          onPress: async () => {
+            await resetAllProgress();
+            Alert.alert('הושלם', 'ההתקדמות אופסה בהצלחה');
+          },
+        },
+      ]
+    );
   }
 
   const textSizes: Array<{ value: typeof textSize; label: string }> = [
@@ -194,6 +217,24 @@ export default function ExploreScreen() {
           גרסה 1.0.0
         </ThemedText>
       </ThemedView>
+
+      <ThemedView style={styles.section}>
+        <ThemedText type="subtitle" style={styles.sectionTitle}>
+          ניהול נתונים
+        </ThemedText>
+        <Pressable 
+          style={styles.resetButton}
+          onPress={handleResetProgress}
+        >
+          <Ionicons name="refresh" size={20} color={Colors.light.semantic.error} />
+          <ThemedText style={styles.resetButtonText}>
+            אפס את כל ההתקדמות
+          </ThemedText>
+        </Pressable>
+        <ThemedText style={styles.resetWarning}>
+          פעולה זו תמחק את כל הסימנים שסומנו כהושלמו ואת רצף הלימוד היומי
+        </ThemedText>
+      </ThemedView>
     </ScrollView>
   );
 }
@@ -201,19 +242,19 @@ export default function ExploreScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.light.background.base,
   },
   section: {
-    padding: 20,
+    padding: spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5E5',
+    borderBottomColor: Colors.light.border.default,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 16,
+    marginBottom: spacing.md,
     textAlign: 'right',
-    color: '#000000',
+    color: Colors.light.text.primary,
   },
   searchBar: {
     flexDirection: 'row',
@@ -221,61 +262,61 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.light.background.surface,
     borderWidth: 1,
-    borderColor: '#E5E5E5',
+    borderColor: Colors.light.border.default,
   },
   searchIcon: {
     marginLeft: 8,
-    color: '#999999',
+    color: Colors.light.text.secondary,
   },
   searchInput: {
     flex: 1,
     fontSize: 16,
     textAlign: 'right',
-    color: '#000000',
+    color: Colors.light.text.primary,
   },
   loadingContainer: {
-    padding: 20,
+    padding: spacing.lg,
     alignItems: 'center',
   },
   resultsContainer: {
     marginTop: 12,
   },
   resultItem: {
-    padding: 16,
+    padding: spacing.md,
     borderRadius: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.light.background.surface,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#E5E5E5',
+    borderColor: Colors.light.border.default,
   },
   resultChapter: {
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 6,
-    color: '#007AFF',
+    color: Colors.light.primary.main,
   },
   resultSection: {
     fontSize: 14,
     marginBottom: 6,
-    color: '#666666',
+    color: Colors.light.text.secondary,
   },
   resultText: {
     fontSize: 15,
     lineHeight: 22,
-    color: '#000000',
+    color: Colors.light.text.primary,
   },
   bookmarkItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
+    padding: spacing.md,
     borderRadius: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.light.background.surface,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#E5E5E5',
+    borderColor: Colors.light.border.default,
   },
   bookmarkContent: {
     flex: 1,
@@ -284,11 +325,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 6,
-    color: '#000000',
+    color: Colors.light.text.primary,
   },
   bookmarkSection: {
     fontSize: 14,
-    color: '#666666',
+    color: Colors.light.text.secondary,
   },
   optionsRow: {
     flexDirection: 'row',
@@ -296,35 +337,58 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   optionButton: {
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing.lg,
     paddingVertical: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#E5E5E5',
-    backgroundColor: '#FFFFFF',
+    borderColor: Colors.light.border.default,
+    backgroundColor: Colors.light.background.surface,
   },
   optionButtonActive: {
-    backgroundColor: '#8B7BB8',
-    borderColor: '#8B7BB8',
+    backgroundColor: Colors.light.primary.main,
+    borderColor: Colors.light.primary.main,
   },
   optionText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#000000',
+    color: Colors.light.text.primary,
   },
   optionTextActive: {
-    color: '#FFFFFF',
+    color: Colors.light.text.onPrimary,
   },
   emptyText: {
     fontSize: 15,
     textAlign: 'center',
-    padding: 20,
-    color: '#999999',
+    padding: spacing.lg,
+    color: Colors.light.text.secondary,
   },
   aboutText: {
     fontSize: 15,
     lineHeight: 24,
     textAlign: 'center',
-    color: '#000000',
+    color: Colors.light.text.primary,
+  },
+  resetButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 14,
+    borderRadius: 8,
+    backgroundColor: Colors.light.semantic.error + '15',
+    borderWidth: 1,
+    borderColor: Colors.light.semantic.error,
+    gap: 8,
+  },
+  resetButtonText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: Colors.light.semantic.error,
+  },
+  resetWarning: {
+    fontSize: 12,
+    color: Colors.light.text.secondary,
+    textAlign: 'center',
+    marginTop: 8,
+    fontStyle: 'italic',
   },
 });

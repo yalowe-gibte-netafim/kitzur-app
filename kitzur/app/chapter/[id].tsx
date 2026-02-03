@@ -4,16 +4,20 @@
  */
 import { useLocalSearchParams, router } from 'expo-router';
 import { useState, useEffect } from 'react';
-import { ScrollView, StyleSheet, ActivityIndicator, View } from 'react-native';
+import { ScrollView, StyleSheet, ActivityIndicator, View, Pressable, Alert } from 'react-native';
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
+import { Ionicons } from '@expo/vector-icons';
 import { getChapter, type Chapter } from '@/utils/contentLoader';
 import SectionList from '@/components/SectionList';
+import { markSimanCompleted, isSimanCompleted, unmarkSimanCompleted } from '@/utils/progress';
+import { Colors, spacing } from '@/constants/theme';
 
 export default function ChapterDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [chapter, setChapter] = useState<Chapter | null>(null);
   const [loading, setLoading] = useState(true);
+  const [completed, setCompleted] = useState(false);
 
   useEffect(() => {
     loadChapter();
@@ -24,7 +28,28 @@ export default function ChapterDetailScreen() {
     setLoading(true);
     const data = await getChapter(id);
     setChapter(data);
+    
+    // Check if chapter is already completed
+    const isCompleted = await isSimanCompleted(id);
+    setCompleted(isCompleted);
+    
     setLoading(false);
+  }
+
+  async function handleMarkComplete() {
+    if (!id || !chapter) return;
+    
+    if (completed) {
+      // Unmark as completed
+      await unmarkSimanCompleted(id);
+      setCompleted(false);
+      Alert.alert('הוסר', `${chapter.chapterLabel} הוסר מרשימת המושלמים`);
+    } else {
+      // Mark as completed
+      await markSimanCompleted(id);
+      setCompleted(true);
+      Alert.alert('✅ הושלם', `${chapter.chapterLabel} סומן כהושלם`);
+    }
   }
 
   if (loading) {
@@ -45,13 +70,28 @@ export default function ChapterDetailScreen() {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <ThemedView style={styles.header}>
+      <ThemedView style={styles.contentHeader}>
         <ThemedText style={styles.chapterLabel}>
           {chapter.chapterLabel}
         </ThemedText>
         <ThemedText style={styles.title}>
           {chapter.title}
         </ThemedText>
+        
+        {/* Mark as Complete Button */}
+        <Pressable 
+          style={[styles.completeButton, completed && styles.completeButtonDone]}
+          onPress={handleMarkComplete}
+        >
+          <Ionicons 
+            name={completed ? "checkmark-circle" : "checkmark-circle-outline"} 
+            size={20} 
+            color={completed ? Colors.light.semantic.success : Colors.light.primary.main}
+          />
+          <ThemedText style={[styles.completeButtonText, completed && styles.completeButtonTextDone]}>
+            {completed ? 'הושלם ✓ (לחץ לביטול)' : 'סמן כהושלם'}
+          </ThemedText>
+        </Pressable>
       </ThemedView>
       <SectionList chapter={chapter} />
     </ScrollView>
@@ -61,22 +101,23 @@ export default function ChapterDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.light.background.base,
   },
-  header: {
-    padding: 24,
+  contentHeader: {
+    padding: spacing.lg,
     paddingTop: 20,
     paddingBottom: 20,
     alignItems: 'center',
-    backgroundColor: '#8B7BB8',
-    borderBottomWidth: 0,
+    backgroundColor: Colors.light.surface.card,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.light.border.default,
   },
   chapterLabel: {
     fontSize: 16,
     fontWeight: '600',
     textAlign: 'center',
     marginBottom: 6,
-    color: '#FFFFFF',
+    color: Colors.light.text.secondary,
     opacity: 0.9,
   },
   title: {
@@ -84,7 +125,29 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
     marginBottom: 0,
-    color: '#FFFFFF',
+    color: Colors.light.text.onPrimary,
+  },
+  completeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    backgroundColor: Colors.light.primary.light + '20',
+    gap: 8,
+    marginTop: 12,
+  },
+  completeButtonDone: {
+    backgroundColor: Colors.light.semantic.success + '20',
+  },
+  completeButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.light.primary.main,
+  },
+  completeButtonTextDone: {
+    color: Colors.light.semantic.success,
   },
   subtitle: {
     fontSize: 18,
@@ -93,20 +156,20 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionCountBadge: {
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.md,
     paddingVertical: 6,
     borderRadius: 16,
-    backgroundColor: '#007AFF',
+    backgroundColor: Colors.light.accent.main,
   },
   sectionCountText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: Colors.light.text.onPrimary,
   },
   errorText: {
     fontSize: 18,
     textAlign: 'center',
     marginTop: 40,
-    color: '#8E8E93',
+    color: Colors.light.text.secondary,
   },
 });
