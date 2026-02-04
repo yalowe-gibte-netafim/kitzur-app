@@ -201,7 +201,20 @@ export function getDailyQuote(): { text: string; source: string } {
   return DAILY_QUOTES[index];
 }
 
-// Get random halacha
+// Get daily halacha (synchronized to global daily learning)
+export function getDailyHalachaId(): string {
+  // Calculate days since Kitzur Shulchan Aruch publication (1864)
+  const startDate = new Date('1864-01-01');
+  const now = new Date();
+  const diffTime = Math.abs(now.getTime() - startDate.getTime());
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  
+  // Cycle through 221 simanim
+  const simanNumber = (diffDays % 221) + 1;
+  return `siman-${String(simanNumber).padStart(3, '0')}`;
+}
+
+// Get random halacha (keeping for backward compatibility)
 export function getRandomHalachaId(totalSimanim: number): string {
   const randomSiman = Math.floor(Math.random() * totalSimanim) + 1;
   return `siman-${String(randomSiman).padStart(3, '0')}`;

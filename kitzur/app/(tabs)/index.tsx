@@ -19,7 +19,7 @@ import {
   getCompletedCount, 
   getStreak, 
   getDailyQuote,
-  getRandomHalachaId,
+  getDailyHalachaId,
   type LastRead,
   type Streak,
 } from '@/utils/progress';
@@ -86,13 +86,27 @@ export default function HomeScreen() {
     router.push('/bookmarks');
   };
 
-  const handleRandom = async () => {
-    const count = getChapterCount();
-    if (count > 0) {
-      const randomId = getRandomHalachaId(count);
-      router.push(`/chapter/${randomId}`);
-    }
+  const handleDailyHalacha = () => {
+    const dailyId = getDailyHalachaId();
+    router.push(`/chapter/${dailyId}`);
   };
+
+  const [currentParsha, setCurrentParsha] = useState<string>('פרשת השבוע');
+
+  useEffect(() => {
+    const loadCurrentParsha = async () => {
+      try {
+        const { getCurrentParsha } = await import('@/utils/parshaLoader');
+        const parsha = getCurrentParsha();
+        if (parsha) {
+          setCurrentParsha(parsha.name);
+        }
+      } catch (error) {
+        console.error('Error loading current parsha:', error);
+      }
+    };
+    loadCurrentParsha();
+  }, []);
 
   const handleShnayimMikra = () => {
     router.push('/shnayim-mikra');
@@ -144,7 +158,7 @@ export default function HomeScreen() {
         {/* Header */}
         <View style={[styles.header, { backgroundColor: colors.primary.main }]}>
           <Text style={[styles.greeting, { color: colors.text.onPrimary, opacity: 0.9 }]}>
-            בראשית ברא
+            {currentParsha}
           </Text>
           <Text style={[styles.title, { color: colors.text.onPrimary }]}>
             לְמַעַן שְׁמוֹ בְּאַהֲבָה
@@ -186,7 +200,7 @@ export default function HomeScreen() {
             onBrowse={handleBrowse}
             onSearch={handleSearch}
             onBookmarks={handleBookmarks}
-            onRandom={handleRandom}
+            onDailyHalacha={handleDailyHalacha}
             onShnayimMikra={handleShnayimMikra}
             onParshatHaMann={handleParshatHaMann}
             onIggeretHaRamban={handleIggeretHaRamban}

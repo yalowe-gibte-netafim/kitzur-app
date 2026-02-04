@@ -141,11 +141,33 @@ export function getParshiotByBook() {
 }
 
 /**
- * Get the current week's parsha (this is a simplified version - 
- * you might want to implement a proper Hebrew calendar library)
+ * Get the current week's parsha using Hebrew calendar
  */
 export function getCurrentParsha(): typeof PARSHIOT_LIST[0] | null {
-  // This would need a Hebrew calendar implementation
-  // For now, return the first parsha
+  try {
+    const { HebrewCalendar, Location } = require('hebcal');
+    const now = new Date();
+    const events = HebrewCalendar.calendar({
+      start: now,
+      end: now,
+      sedrot: true,
+      il: true, // Israel
+    });
+
+    // Find the Parsha event
+    const parashatHashavuaEvent = events.find((ev: any) => ev.desc === 'Parashat Hashavua');
+    if (parashatHashavuaEvent) {
+      const parshaName = parashatHashavuaEvent.render('he');
+      // Try to match with our parsha list
+      const parsha = PARSHIOT_LIST.find(p => p.name === parshaName || parshaName.includes(p.name));
+      if (parsha) {
+        return parsha;
+      }
+    }
+  } catch (error) {
+    console.error('Error getting current parsha:', error);
+  }
+  
+  // Fallback to first parsha if something fails
   return PARSHIOT_LIST[0];
 }

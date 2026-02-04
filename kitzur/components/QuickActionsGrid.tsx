@@ -33,7 +33,7 @@ interface QuickActionsGridProps {
   onBrowse: () => void;
   onSearch: () => void;
   onBookmarks: () => void;
-  onRandom: () => void;
+  onDailyHalacha: () => void;
   onShnayimMikra?: () => void;
   onParshatHaMann?: () => void;
   onIggeretHaRamban?: () => void;
@@ -42,13 +42,13 @@ interface QuickActionsGridProps {
   onMeeinShalosh?: () => void;
 }
 
-export function QuickActionsGrid({ onBrowse, onSearch, onBookmarks, onRandom, onShnayimMikra, onParshatHaMann, onIggeretHaRamban, onBirkatHaMazon, onBoreiNefashot, onMeeinShalosh }: QuickActionsGridProps) {
+export function QuickActionsGrid({ onBrowse, onSearch, onBookmarks, onDailyHalacha, onShnayimMikra, onParshatHaMann, onIggeretHaRamban, onBirkatHaMazon, onBoreiNefashot, onMeeinShalosh }: QuickActionsGridProps) {
   return (
     <View style={styles.grid}>
       <QuickActionButton icon="📖" label="Browse" onPress={onBrowse} />
       <QuickActionButton icon="🔍" label="Search" onPress={onSearch} />
       <QuickActionButton icon="⭐" label="Bookmarks" onPress={onBookmarks} />
-      <QuickActionButton icon="🎲" label="Random" onPress={onRandom} />
+      <QuickActionButton icon="📅" label="הלכה יומית" onPress={onDailyHalacha} />
       {onShnayimMikra && (
         <QuickActionButton icon="📜" label="שניים מקרא" onPress={onShnayimMikra} />
       )}
