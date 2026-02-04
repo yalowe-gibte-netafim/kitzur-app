@@ -141,33 +141,24 @@ export function getParshiotByBook() {
 }
 
 /**
- * Get the current week's parsha using Hebrew calendar
+ * Get the current week's parsha based on simple week calculation
+ * This is a simplified version - cycles through the parshiot based on week number
  */
 export function getCurrentParsha(): typeof PARSHIOT_LIST[0] | null {
   try {
-    const { HebrewCalendar, Location } = require('hebcal');
+    // Get current week of the year
     const now = new Date();
-    const events = HebrewCalendar.calendar({
-      start: now,
-      end: now,
-      sedrot: true,
-      il: true, // Israel
-    });
-
-    // Find the Parsha event
-    const parashatHashavuaEvent = events.find((ev: any) => ev.desc === 'Parashat Hashavua');
-    if (parashatHashavuaEvent) {
-      const parshaName = parashatHashavuaEvent.render('he');
-      // Try to match with our parsha list
-      const parsha = PARSHIOT_LIST.find(p => p.name === parshaName || parshaName.includes(p.name));
-      if (parsha) {
-        return parsha;
-      }
-    }
+    const start = new Date(now.getFullYear(), 0, 1);
+    const diff = now.getTime() - start.getTime();
+    const oneWeek = 1000 * 60 * 60 * 24 * 7;
+    const weekNumber = Math.floor(diff / oneWeek);
+    
+    // Cycle through the 54 parshiot
+    const parshaIndex = weekNumber % PARSHIOT_LIST.length;
+    return PARSHIOT_LIST[parshaIndex];
   } catch (error) {
     console.error('Error getting current parsha:', error);
+    // Fallback to first parsha
+    return PARSHIOT_LIST[0];
   }
-  
-  // Fallback to first parsha if something fails
-  return PARSHIOT_LIST[0];
 }
