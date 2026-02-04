@@ -4,6 +4,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import type { SymbolViewProps } from 'expo-symbols';
 
 export default function AboutScreen() {
   const appVersion = '1.1.0';
@@ -153,7 +154,7 @@ export default function AboutScreen() {
 }
 
 interface FeatureItemProps {
-  icon: string;
+  icon: SymbolViewProps['name'];
   text: string;
 }
 
