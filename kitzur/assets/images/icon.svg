@@ -1,69 +1,74 @@
 <svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background gradient -->
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
       <stop offset="100%" style="stop-color:#1e3a8a;stop-opacity:1" />
     </linearGradient>
-    <radialGradient id="flame" cx="50%" cy="30%">
-      <stop offset="0%" style="stop-color:#fef3c7;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#fbbf24;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
-    </radialGradient>
   </defs>
   
   <!-- Background -->
   <rect width="1024" height="1024" fill="url(#bg)" rx="200"/>
   
-  <!-- Menorah base -->
-  <g transform="translate(512, 700)">
-    <!-- Base platform -->
-    <rect x="-120" y="0" width="240" height="60" fill="#d97706" rx="8"/>
-    <rect x="-100" y="-40" width="200" height="50" fill="#f59e0b" rx="6"/>
-    <rect x="-80" y="-80" width="160" height="50" fill="#fbbf24" rx="6"/>
+  <!-- Menorah - simple and clear design -->
+  <g transform="translate(512, 150)">
+    <!-- Base -->
+    <rect x="-100" y="650" width="200" height="50" fill="#fbbf24" rx="10"/>
+    <rect x="-70" y="600" width="140" height="60" fill="#fbbf24" rx="8"/>
     
-    <!-- Central stem -->
-    <rect x="-30" y="-550" width="60" height="470" fill="#fbbf24" rx="10"/>
+    <!-- Central column -->
+    <rect x="-25" y="100" width="50" height="500" fill="#fbbf24" rx="8"/>
     
-    <!-- Right branches -->
-    <path d="M 30,-450 Q 150,-450 150,-350 L 150,-100" 
-          stroke="#fbbf24" stroke-width="45" fill="none" stroke-linecap="round"/>
-    <path d="M 30,-300 Q 220,-300 220,-200 L 220,-100" 
-          stroke="#fbbf24" stroke-width="45" fill="none" stroke-linecap="round"/>
-    <path d="M 30,-150 Q 290,-150 290,-50 L 290,-100" 
-          stroke="#fbbf24" stroke-width="45" fill="none" stroke-linecap="round"/>
+    <!-- Arms - symmetric design -->
+    <!-- Right side -->
+    <path d="M 25,200 C 25,200 120,200 120,280 L 120,480" 
+          stroke="#fbbf24" stroke-width="40" fill="none" stroke-linecap="round"/>
+    <path d="M 25,300 C 25,300 180,300 180,380 L 180,480" 
+          stroke="#fbbf24" stroke-width="40" fill="none" stroke-linecap="round"/>
+    <path d="M 25,400 C 25,400 240,400 240,480 L 240,480" 
+          stroke="#fbbf24" stroke-width="40" fill="none" stroke-linecap="round"/>
     
-    <!-- Left branches -->
-    <path d="M -30,-450 Q -150,-450 -150,-350 L -150,-100" 
-          stroke="#fbbf24" stroke-width="45" fill="none" stroke-linecap="round"/>
-    <path d="M -30,-300 Q -220,-300 -220,-200 L -220,-100" 
-          stroke="#fbbf24" stroke-width="45" fill="none" stroke-linecap="round"/>
-    <path d="M -30,-150 Q -290,-150 -290,-50 L -290,-100" 
-          stroke="#fbbf24" stroke-width="45" fill="none" stroke-linecap="round"/>
+    <!-- Left side -->
+    <path d="M -25,200 C -25,200 -120,200 -120,280 L -120,480" 
+          stroke="#fbbf24" stroke-width="40" fill="none" stroke-linecap="round"/>
+    <path d="M -25,300 C -25,300 -180,300 -180,380 L -180,480" 
+          stroke="#fbbf24" stroke-width="40" fill="none" stroke-linecap="round"/>
+    <path d="M -25,400 C -25,400 -240,400 -240,480 L -240,480" 
+          stroke="#fbbf24" stroke-width="40" fill="none" stroke-linecap="round"/>
     
-    <!-- Candle cups -->
-    <ellipse cx="0" cy="-550" rx="35" ry="15" fill="#d97706"/>
-    <ellipse cx="150" cy="-100" rx="35" ry="15" fill="#d97706"/>
-    <ellipse cx="220" cy="-100" rx="35" ry="15" fill="#d97706"/>
-    <ellipse cx="290" cy="-100" rx="35" ry="15" fill="#d97706"/>
-    <ellipse cx="-150" cy="-100" rx="35" ry="15" fill="#d97706"/>
-    <ellipse cx="-220" cy="-100" rx="35" ry="15" fill="#d97706"/>
-    <ellipse cx="-290" cy="-100" rx="35" ry="15" fill="#d97706"/>
+    <!-- Candles -->
+    <ellipse cx="0" cy="90" rx="30" ry="12" fill="#f59e0b"/>
+    <ellipse cx="120" cy="470" rx="30" ry="12" fill="#f59e0b"/>
+    <ellipse cx="180" cy="470" rx="30" ry="12" fill="#f59e0b"/>
+    <ellipse cx="240" cy="470" rx="30" ry="12" fill="#f59e0b"/>
+    <ellipse cx="-120" cy="470" rx="30" ry="12" fill="#f59e0b"/>
+    <ellipse cx="-180" cy="470" rx="30" ry="12" fill="#f59e0b"/>
+    <ellipse cx="-240" cy="470" rx="30" ry="12" fill="#f59e0b"/>
     
     <!-- Flames -->
-    <g id="flames">
-      <!-- Center flame (tallest) -->
-      <path d="M 0,-570 Q -20,-620 0,-670 Q 20,-620 0,-570" fill="url(#flame)"/>
+    <g opacity="0.95">
+      <!-- Center -->
+      <ellipse cx="0" cy="50" rx="20" ry="40" fill="#fef3c7"/>
+      <ellipse cx="0" cy="45" rx="15" ry="30" fill="#fbbf24"/>
       
-      <!-- Right flames -->
-      <path d="M 150,-120 Q 130,-160 150,-200 Q 170,-160 150,-120" fill="url(#flame)"/>
-      <path d="M 220,-120 Q 200,-160 220,-200 Q 240,-160 220,-120" fill="url(#flame)"/>
-      <path d="M 290,-120 Q 270,-160 290,-200 Q 310,-160 290,-120" fill="url(#flame)"/>
+      <!-- Right -->
+      <ellipse cx="120" cy="430" rx="18" ry="35" fill="#fef3c7"/>
+      <ellipse cx="120" cy="425" rx="13" ry="25" fill="#fbbf24"/>
       
-      <!-- Left flames -->
-      <path d="M -150,-120 Q -170,-160 -150,-200 Q -130,-160 -150,-120" fill="url(#flame)"/>
-      <path d="M -220,-120 Q -240,-160 -220,-200 Q -200,-160 -220,-120" fill="url(#flame)"/>
-      <path d="M -290,-120 Q -310,-160 -290,-200 Q -270,-160 -290,-120" fill="url(#flame)"/>
+      <ellipse cx="180" cy="430" rx="18" ry="35" fill="#fef3c7"/>
+      <ellipse cx="180" cy="425" rx="13" ry="25" fill="#fbbf24"/>
+      
+      <ellipse cx="240" cy="430" rx="18" ry="35" fill="#fef3c7"/>
+      <ellipse cx="240" cy="425" rx="13" ry="25" fill="#fbbf24"/>
+      
+      <!-- Left -->
+      <ellipse cx="-120" cy="430" rx="18" ry="35" fill="#fef3c7"/>
+      <ellipse cx="-120" cy="425" rx="13" ry="25" fill="#fbbf24"/>
+      
+      <ellipse cx="-180" cy="430" rx="18" ry="35" fill="#fef3c7"/>
+      <ellipse cx="-180" cy="425" rx="13" ry="25" fill="#fbbf24"/>
+      
+      <ellipse cx="-240" cy="430" rx="18" ry="35" fill="#fef3c7"/>
+      <ellipse cx="-240" cy="425" rx="13" ry="25" fill="#fbbf24"/>
     </g>
   </g>
 </svg>
