@@ -212,9 +212,9 @@ export default function ExploreScreen() {
           אודות
         </ThemedText>
         <ThemedText style={styles.aboutText}>
-          קיצור שולחן ערוך לפי מנהג הספרדים{'\n'}
-          מבוסס על פסקי הרב עובדיה יוסף זצ"ל{'\n'}
-          גרסה 1.0.0
+          למען שמו באהבה{'\n'}
+          קיצור שולחן ערוך + ברכות ותפילות{'\n'}
+          גרסה 1.2.0
         </ThemedText>
       </ThemedView>
 

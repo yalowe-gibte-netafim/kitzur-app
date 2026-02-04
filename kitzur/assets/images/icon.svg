@@ -1,0 +1,49 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="#1e3a8a" rx="180"/>
+  
+  <!-- Menorah -->
+  <g transform="translate(512, 512)">
+    <!-- Base -->
+    <rect x="-80" y="280" width="160" height="40" fill="#fbbf24" rx="8"/>
+    <rect x="-50" y="250" width="100" height="50" fill="#fbbf24" rx="6"/>
+    
+    <!-- Central stem -->
+    <rect x="-20" y="-250" width="40" height="500" fill="#fbbf24" rx="8"/>
+    
+    <!-- Side branches - right -->
+    <path d="M 20 -200 Q 120 -200 120 -100 L 120 0" stroke="#fbbf24" stroke-width="30" fill="none" stroke-linecap="round"/>
+    <path d="M 20 -100 Q 180 -100 180 0 L 180 0" stroke="#fbbf24" stroke-width="30" fill="none" stroke-linecap="round"/>
+    <path d="M 20 0 Q 240 0 240 100 L 240 100" stroke="#fbbf24" stroke-width="30" fill="none" stroke-linecap="round"/>
+    
+    <!-- Side branches - left -->
+    <path d="M -20 -200 Q -120 -200 -120 -100 L -120 0" stroke="#fbbf24" stroke-width="30" fill="none" stroke-linecap="round"/>
+    <path d="M -20 -100 Q -180 -100 -180 0 L -180 0" stroke="#fbbf24" stroke-width="30" fill="none" stroke-linecap="round"/>
+    <path d="M -20 0 Q -240 0 -240 100 L -240 100" stroke="#fbbf24" stroke-width="30" fill="none" stroke-linecap="round"/>
+    
+    <!-- Flames -->
+    <!-- Center flame -->
+    <ellipse cx="0" cy="-270" rx="25" ry="40" fill="#fbbf24"/>
+    <ellipse cx="0" cy="-285" rx="18" ry="30" fill="#fef3c7"/>
+    
+    <!-- Right flames -->
+    <ellipse cx="120" cy="-120" rx="22" ry="35" fill="#fbbf24"/>
+    <ellipse cx="120" cy="-133" rx="15" ry="25" fill="#fef3c7"/>
+    
+    <ellipse cx="180" cy="-20" rx="22" ry="35" fill="#fbbf24"/>
+    <ellipse cx="180" cy="-33" rx="15" ry="25" fill="#fef3c7"/>
+    
+    <ellipse cx="240" cy="80" rx="22" ry="35" fill="#fbbf24"/>
+    <ellipse cx="240" cy="67" rx="15" ry="25" fill="#fef3c7"/>
+    
+    <!-- Left flames -->
+    <ellipse cx="-120" cy="-120" rx="22" ry="35" fill="#fbbf24"/>
+    <ellipse cx="-120" cy="-133" rx="15" ry="25" fill="#fef3c7"/>
+    
+    <ellipse cx="-180" cy="-20" rx="22" ry="35" fill="#fbbf24"/>
+    <ellipse cx="-180" cy="-33" rx="15" ry="25" fill="#fef3c7"/>
+    
+    <ellipse cx="-240" cy="80" rx="22" ry="35" fill="#fbbf24"/>
+    <ellipse cx="-240" cy="67" rx="15" ry="25" fill="#fef3c7"/>
+  </g>
+</svg>

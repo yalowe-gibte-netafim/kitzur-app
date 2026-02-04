@@ -7,7 +7,7 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import type { SymbolViewProps } from 'expo-symbols';
 
 export default function AboutScreen() {
-  const appVersion = '1.1.0';
+  const appVersion = '1.2.0';
   
   const openLink = (url: string) => {
     Linking.openURL(url);
@@ -31,10 +31,10 @@ export default function AboutScreen() {
             📖 אודות האפליקציה
           </ThemedText>
           <ThemedText style={styles.text}>
-            אפליקציה ללימוד קיצור שולחן ערוך עם תכונות מתקדמות למעקב אחר ההתקדמות, סימניות, וחיפוש מהיר.
+            אפליקציה ללימוד קיצור שולחן ערוך עם תכונות מתקדמות: מעקב אחר התקדמות, סימניות, חיפוש מהיר, הלכה יומית מסונכרנת, ופרשת השבוע.
           </ThemedText>
           <ThemedText style={styles.text}>
-            האפליקציה כוללת את הטקסט המלא של קיצור שולחן ערוך בנוסח ספרד, עם ניקוד מלא וחלוקה נוחה לסימנים וסעיפים.
+            האפליקציה כוללת את הטקסט המלא של קיצור שולחן ערוך, ברכות ותפילות מעוצבות, שניים מקרא, פרשת המן ואיגרת הרמב"ן.
           </ThemedText>
         </View>
 
@@ -48,7 +48,8 @@ export default function AboutScreen() {
           <FeatureItem icon="bookmark.fill" text="סימניות אישיות" />
           <FeatureItem icon="chart.bar.fill" text="מעקב אחר התקדמות הלימוד" />
           <FeatureItem icon="flame.fill" text="רצף ימים של לימוד" />
-          <FeatureItem icon="sparkles" text="תזכורת יומית להלכה" />
+          <FeatureItem icon="sparkles" text="הלכה יומית מסונכרנת עולמית" />
+          <FeatureItem icon="calendar" text="פרשת השבוע המעודכנת" />
           <FeatureItem icon="moon.stars.fill" text="ברכות ותפילות (ברכת המזון, בורא נפשות, מעין שלוש)" />
           <FeatureItem icon="scroll.fill" text="תוספות מיוחדות (אגרת הרמב״ן, פרשת המן, שניים מקרא)" />
         </View>
@@ -87,12 +88,12 @@ export default function AboutScreen() {
           <ThemedText type="subtitle" style={styles.sectionTitle}>
             🆕 מה חדש בגרסה {appVersion}
           </ThemedText>
-          <ThemedText style={styles.bulletText}>✅ עיצוב מחדש של ברכות ותפילות</ThemedText>
-          <ThemedText style={styles.bulletText}>✅ הדגשה ברורה של ברכות וסעיפים</ThemedText>
-          <ThemedText style={styles.bulletText}>✅ הנחיות מפורטות בתחילת כל תפילה</ThemedText>
-          <ThemedText style={styles.bulletText}>✅ שיפור קריאות עם שבירת שורות אחרי נקודותיים</ThemedText>
-          <ThemedText style={styles.bulletText}>✅ ניקוי ותיקון פורמט הטקסט</ThemedText>
-          <ThemedText style={styles.bulletText}>✅ בדיקות E2E מקיפות (65 בדיקות)</ThemedText>
+          <ThemedText style={styles.bulletText}>✅ אייקון חדש של מנורה זהב</ThemedText>
+          <ThemedText style={styles.bulletText}>✅ תצוגת פרשת השבוע בדף הבית</ThemedText>
+          <ThemedText style={styles.bulletText}>✅ הלכה יומית מסונכרנת עולמית (במקום רנדומלי)</ThemedText>
+          <ThemedText style={styles.bulletText}>✅ כל הטקסטים באנגלית הומרו לעברית</ThemedText>
+          <ThemedText style={styles.bulletText}>✅ שיפור ניווט - כפתור חזרה בכל המסכים</ThemedText>
+          <ThemedText style={styles.bulletText}>✅ חץ "המשך לימוד" מוקטן ומושלם</ThemedText>
         </View>
 
         {/* Previous Updates */}
@@ -100,6 +101,14 @@ export default function AboutScreen() {
           <ThemedText type="subtitle" style={styles.sectionTitle}>
             📝 עדכונים קודמים
           </ThemedText>
+          <ThemedText style={styles.text}>
+            <ThemedText style={styles.bold}>גרסה 1.1.0:</ThemedText>
+          </ThemedText>
+          <ThemedText style={styles.bulletText}>• עיצוב מחדש של ברכות ותפילות</ThemedText>
+          <ThemedText style={styles.bulletText}>• הפרדת הנחיות דיאלוג (המברך אומר, המסובים עונים)</ThemedText>
+          <ThemedText style={styles.bulletText}>• הנחיות אופציונליות בכחול (בשבת, בחג)</ThemedText>
+          <ThemedText style={styles.bulletText}>• מסך טעינה מעוצב עם שם האפליקציה</ThemedText>
+          <ThemedText style={styles.bulletText}></ThemedText>
           <ThemedText style={styles.text}>
             <ThemedText style={styles.bold}>גרסה 1.0.0:</ThemedText>
           </ThemedText>
