@@ -41,6 +41,74 @@ async function getItem(key: string): Promise<string | null> {
   }
 }
 
+async function removeItem(key: string): Promise<void> {
+  if (Platform.OS === "web" && typeof window !== "undefined") {
+    window.localStorage.removeItem(key);
+  } else {
+    await AsyncStorage.removeItem(key);
+  }
+}
+
+// Generic storage functions for testing and general use
+export async function storeData(key: string, value: any): Promise<void> {
+  try {
+    const jsonValue = typeof value === 'string' ? value : JSON.stringify(value);
+    await setItem(key, jsonValue);
+  } catch (error) {
+    console.error('Error storing data:', error);
+  }
+}
+
+export async function getData(key: string): Promise<any> {
+  try {
+    const value = await getItem(key);
+    if (value === null) return null;
+    
+    // Try to parse as JSON, fallback to string
+    try {
+      return JSON.parse(value);
+    } catch {
+      return value;
+    }
+  } catch (error) {
+    console.error('Error getting data:', error);
+    return null;
+  }
+}
+
+export async function removeData(key: string): Promise<void> {
+  try {
+    await removeItem(key);
+  } catch (error) {
+    console.error('Error removing data:', error);
+  }
+}
+
+export async function getAllKeys(): Promise<string[]> {
+  try {
+    if (Platform.OS === "web" && typeof window !== "undefined") {
+      return Object.keys(window.localStorage);
+    } else {
+      return await AsyncStorage.getAllKeys();
+    }
+  } catch (error) {
+    console.error('Error getting keys:', error);
+    return [];
+  }
+}
+
+export async function clearAll(): Promise<void> {
+  try {
+    if (Platform.OS === "web" && typeof window !== "undefined") {
+      window.localStorage.clear();
+    } else {
+      await AsyncStorage.clear();
+    }
+  } catch (error) {
+    console.error('Error clearing storage:', error);
+  }
+}
+
 // Bookmarks
 export async function getBookmarks(): Promise<Bookmark[]> {
   try {
