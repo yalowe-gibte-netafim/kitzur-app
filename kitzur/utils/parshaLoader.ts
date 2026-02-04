@@ -92,18 +92,22 @@ export const PARSHIOT_LIST = [
  */
 export async function loadParsha(parshaId: string): Promise<Parsha | null> {
   try {
+    console.log(`🔍 Loading parsha: ${parshaId}`);
     // Use dynamic import for the registry to avoid loading all parshiot upfront
     const { parshiotRegistry } = await import('../content/parshiot-index');
+    console.log(`📚 Registry keys:`, Object.keys(parshiotRegistry));
     const parsha = parshiotRegistry[parshaId];
     
     if (!parsha) {
-      console.error(`Parsha ${parshaId} not found in registry`);
+      console.error(`❌ Parsha ${parshaId} not found in registry`);
+      console.error(`Available keys:`, Object.keys(parshiotRegistry));
       return null;
     }
     
+    console.log(`✅ Parsha ${parshaId} loaded successfully`);
     return parsha;
   } catch (error) {
-    console.error(`Error loading parsha ${parshaId}:`, error);
+    console.error(`💥 Error loading parsha ${parshaId}:`, error);
     return null;
   }
 }
