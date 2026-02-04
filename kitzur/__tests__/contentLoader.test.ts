@@ -90,9 +90,12 @@ describe('Content Loader Utils', () => {
       const content = await getChapter(chapterId);
       
       expect(content).toBeDefined();
+      expect(content).not.toBeNull();
       expect(content).toHaveProperty('id');
       expect(content).toHaveProperty('sections');
-      expect(Array.isArray(content.sections)).toBe(true);
+      if (content) {
+        expect(Array.isArray(content.sections)).toBe(true);
+      }
     });
 
     it('should return null for invalid chapter ID', async () => {

@@ -24,9 +24,10 @@ describe('Progress Tracking Utils', () => {
     it('should save and retrieve last read chapter', async () => {
       const testData = {
         chapterId: 'kitzur_orach_chaim-001',
-        chapterNumber: 1,
-        chapterName: 'הלכות השכמת הבוקר',
+        chapterLabel: 'פרק א',
+        chapterTitle: 'הלכות השכמת הבוקר',
         sectionId: 'section-1',
+        sectionNumber: 1,
         timestamp: Date.now(),
       };
 
@@ -35,7 +36,7 @@ describe('Progress Tracking Utils', () => {
 
       expect(retrieved).toBeDefined();
       expect(retrieved?.chapterId).toBe(testData.chapterId);
-      expect(retrieved?.chapterNumber).toBe(testData.chapterNumber);
+      expect(retrieved?.sectionNumber).toBe(testData.sectionNumber);
     });
 
     it('should return null when no last read exists', async () => {
@@ -112,9 +113,10 @@ describe('Progress Tracking Utils', () => {
       // Setup some data
       await saveLastRead({
         chapterId: 'test',
-        chapterNumber: 1,
-        chapterName: 'Test',
+        chapterLabel: 'פרק א',
+        chapterTitle: 'Test',
         sectionId: 'test-1',
+        sectionNumber: 1,
         timestamp: Date.now(),
       });
       await markSimanCompleted('kitzur_orach_chaim-001');
