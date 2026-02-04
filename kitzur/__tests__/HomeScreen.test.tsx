@@ -15,7 +15,10 @@ jest.mock('../utils/progress', () => ({
   getLastRead: jest.fn(() => Promise.resolve(null)),
   getCompletedCount: jest.fn(() => Promise.resolve(0)),
   getStreak: jest.fn(() => Promise.resolve({ count: 0, lastDate: '' })),
-  getDailyQuote: jest.fn(() => 'כל ישראל יש להם חלק לעולם הבא'),
+  getDailyQuote: jest.fn(() => ({
+    text: 'כל ישראל יש להם חלק לעולם הבא',
+    source: 'פרקי אבות'
+  })),
   getRandomHalachaId: jest.fn(() => 1),
 }));
 

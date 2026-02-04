@@ -14,6 +14,12 @@ const CHAPTER_IDS = chapterIds;
 
 // Lazy-load the chapter registry only when needed
 let chapterRegistry: Record<string, any> | null = null;
+
+// For testing: allow injecting a pre-loaded registry
+export function __setChapterRegistryForTests(registry: Record<string, any> | null) {
+  chapterRegistry = registry;
+}
+
 async function getChapterRegistry() {
   if (!chapterRegistry) {
     // Dynamically import the registry only when first accessed

@@ -4,8 +4,8 @@
 import {
   saveLastRead,
   getLastRead,
-  markChapterCompleted,
-  isChapterCompleted,
+  markSimanCompleted,
+  isSimanCompleted,
   getCompletedCount,
   getStreak,
   updateStreak,
@@ -48,23 +48,23 @@ describe('Progress Tracking Utils', () => {
     it('should mark chapter as completed', async () => {
       const chapterId = 'kitzur_orach_chaim-001';
       
-      await markChapterCompleted(chapterId);
-      const isCompleted = await isChapterCompleted(chapterId);
+      await markSimanCompleted(chapterId);
+      const isCompleted = await isSimanCompleted(chapterId);
       
       expect(isCompleted).toBe(true);
     });
 
     it('should return false for incomplete chapter', async () => {
       const chapterId = 'kitzur_orach_chaim-999';
-      const isCompleted = await isChapterCompleted(chapterId);
+      const isCompleted = await isSimanCompleted(chapterId);
       
       expect(isCompleted).toBe(false);
     });
 
     it('should track completed count correctly', async () => {
-      await markChapterCompleted('kitzur_orach_chaim-001');
-      await markChapterCompleted('kitzur_orach_chaim-002');
-      await markChapterCompleted('kitzur_orach_chaim-003');
+      await markSimanCompleted('kitzur_orach_chaim-001');
+      await markSimanCompleted('kitzur_orach_chaim-002');
+      await markSimanCompleted('kitzur_orach_chaim-003');
 
       const count = await getCompletedCount();
       expect(count).toBe(3);
@@ -73,8 +73,8 @@ describe('Progress Tracking Utils', () => {
     it('should not double-count completed chapters', async () => {
       const chapterId = 'kitzur_orach_chaim-001';
       
-      await markChapterCompleted(chapterId);
-      await markChapterCompleted(chapterId);
+      await markSimanCompleted(chapterId);
+      await markSimanCompleted(chapterId);
 
       const count = await getCompletedCount();
       expect(count).toBe(1);
@@ -117,7 +117,7 @@ describe('Progress Tracking Utils', () => {
         sectionId: 'test-1',
         timestamp: Date.now(),
       });
-      await markChapterCompleted('kitzur_orach_chaim-001');
+      await markSimanCompleted('kitzur_orach_chaim-001');
       await updateStreak();
 
       // Reset
@@ -139,17 +139,26 @@ describe('Progress Tracking Utils', () => {
       const quote = getDailyQuote();
       
       expect(quote).toBeDefined();
-      expect(typeof quote).toBe('string');
-      expect(quote.length).toBeGreaterThan(0);
+      expect(typeof quote).toBe('object');
+      expect(quote.text).toBeDefined();
+      expect(typeof quote.text).toBe('string');
+      expect(quote.text.length).toBeGreaterThan(0);
+      expect(quote.source).toBeDefined();
+      expect(typeof quote.source).toBe('string');
     });
 
     it('should generate random halacha ID within range', () => {
       const maxId = 100;
       const randomId = getRandomHalachaId(maxId);
       
-      expect(randomId).toBeGreaterThanOrEqual(1);
-      expect(randomId).toBeLessThanOrEqual(maxId);
-    });
+      expect(typeof randomId).toBe('string');
+      expect(randomId).toMatch(/^siman-\d{3}$/);
+      
+      // Extract number from format siman-XXX
+      const num = parseInt(randomId.split('-')[1]);
+      expect(num).toBeGreaterThanOrEqual(1);
+      expect(num).toBeLessThanOrEqual(maxId);
+    });;
 
     it('should generate different random IDs', () => {
       const ids = new Set();
