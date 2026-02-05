@@ -2,12 +2,12 @@
  * Questions & Answers Main Screen
  * Community knowledge base
  */
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { StyleSheet, ScrollView, View, Pressable, TextInput, ActivityIndicator } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { Colors, spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import * as Haptics from 'expo-haptics';
@@ -23,25 +23,44 @@ import { initializeSampleData } from '@/data/sampleQuestions';
 import { normalizeHebrew } from '@/utils/hebrewNormalize';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// Filter state interface
+interface FilterState {
+  category: QuestionCategory | 'all';
+  showOnlyUnanswered: boolean;
+  searchQuery: string;
+}
+
 export default function QuestionsScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [allQuestions, setAllQuestions] = useState<Question[]>([]); // Original data
-  const [displayedQuestions, setDisplayedQuestions] = useState<Question[]>([]); // Filtered/searched
+  const [allQuestions, setAllQuestions] = useState<Question[]>([]);
+  const [displayedQuestions, setDisplayedQuestions] = useState<Question[]>([]);
   const [popularQuestions, setPopularQuestions] = useState<Question[]>([]);
   const [unansweredCount, setUnansweredCount] = useState(0);
   const [pendingAnswersCount, setPendingAnswersCount] = useState(0);
-  const [selectedCategory, setSelectedCategory] = useState<QuestionCategory | 'all'>('all');
-  const [showingUnanswered, setShowingUnanswered] = useState(false);
+  
+  // Centralized filter state
+  const [filters, setFilters] = useState<FilterState>({
+    category: 'all',
+    showOnlyUnanswered: false,
+    searchQuery: ''
+  });
+  
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     loadQuestions();
   }, []);
+  
+  // Reload pending answers count when screen regains focus
+  useFocusEffect(
+    React.useCallback(() => {
+      loadPendingAnswersCount();
+    }, [])
+  );
 
   async function loadQuestions() {
     setLoading(true);
@@ -94,9 +113,9 @@ export default function QuestionsScreen() {
       setPendingAnswersCount(0);
     }
   }
-
+  
   // Smart fuzzy search with Hebrew support and relevance filtering
-  function fuzzySearchQuestions(query: string, questions: Question[]): Question[] {
+  const fuzzySearchQuestions = useCallback((query: string, questions: Question[]): Question[] => {
     if (!query.trim()) return questions;
     
     const normalizedQuery = normalizeHebrew(query).toLowerCase();
@@ -139,53 +158,99 @@ export default function QuestionsScreen() {
           const answerWords = normalizedAnswer.split(/\s+/);
           if (answerWords.includes(word)) {
             score += 15; // Increased - answer relevance is important
+            exactMatches++;
           } else if (normalizedAnswer.includes(word)) {
+            // Substring in answer
             score += 8;
           }
-          
-          // Check if answer contains related concepts to the question
-          // If word from search appears in both question AND answer, boost score significantly
-          if (questionWords.includes(word) && answerWords.includes(word)) {
-            score += 20; // Big boost for coherence between question and answer
-          }
-          
-          // Fuzzy match - word similarity
-          questionWords.forEach(qWord => {
-            if (qWord.length > 2 && word.length > 2) {
-              // Check if words share significant portion
-              if (qWord.startsWith(word) || word.startsWith(qWord)) {
-                score += 5;
-              } else if (qWord.includes(word) || word.includes(qWord)) {
-                score += 2;
-              }
-            }
-          });
         });
         
-        // Boost score if multiple query words matched
-        if (queryWords.length > 1) {
-          const matchRatio = exactMatches / queryWords.length;
-          score *= (1 + matchRatio * 0.8); // Boost for comprehensive matches
+        // Bonus for multiple exact matches (strong indication this is relevant)
+        if (exactMatches > 1) {
+          score += exactMatches * 5;
         }
         
-        // Boost for answered questions (they provide actual value)
-        if (q.answer) {
-          score *= 1.3; // 30% boost for questions with answers
-        }
-        
-        return { question: q, score: Math.round(score) };
+        return { question: q, score };
       })
-      .filter(item => item.score >= MIN_SCORE_THRESHOLD)
+      .filter(result => result.score >= MIN_SCORE_THRESHOLD)
       .sort((a, b) => b.score - a.score)
-      .map(item => item.question);
-    
+      .map(result => result.question);
+      
     return results;
-  }
+  }, []);
+  
+  // Apply all filters together
+  const applyAllFilters = useCallback(() => {
+    let filtered = [...allQuestions];
+    
+    console.log('🔍 ========== FILTERS DEBUG ==========');
+    console.log('Total questions:', allQuestions.length);
+    console.log('Current filters:', JSON.stringify(filters, null, 2));
+    
+    // Debug: Show all question categories
+    const categoryCounts: Record<string, number> = {};
+    allQuestions.forEach(q => {
+      categoryCounts[q.category] = (categoryCounts[q.category] || 0) + 1;
+    });
+    console.log('Questions by category:', categoryCounts);
+    
+    // 1. Category filter
+    if (filters.category !== 'all') {
+      const beforeCount = filtered.length;
+      filtered = filtered.filter(q => {
+        const match = q.category === filters.category;
+        if (!match) {
+          console.log(`❌ Filtered out: ${q.question.substring(0, 50)}... (category: ${q.category})`);
+        }
+        return match;
+      });
+      console.log(`📚 Category filter (${filters.category}): ${beforeCount} → ${filtered.length}`);
+      
+      if (filtered.length === 0) {
+        console.warn(`⚠️ No questions found for category: ${filters.category}`);
+      }
+    }
+    
+    // 2. Unanswered filter
+    if (filters.showOnlyUnanswered) {
+      const beforeCount = filtered.length;
+      filtered = filtered.filter(q => !q.answer);
+      console.log(`⏰ Unanswered filter: ${beforeCount} → ${filtered.length}`);
+    }
+    
+    // 3. Search filter
+    if (filters.searchQuery.trim()) {
+      const beforeCount = filtered.length;
+      filtered = fuzzySearchQuestions(filters.searchQuery, filtered);
+      console.log(`🔍 Search filter: ${beforeCount} → ${filtered.length}`);
+    }
+    
+    // 4. Sort: unanswered questions ALWAYS at top
+    filtered.sort((a, b) => {
+      const aUnanswered = !a.answer ? 1 : 0;
+      const bUnanswered = !b.answer ? 1 : 0;
+      
+      // Unanswered first
+      if (aUnanswered !== bUnanswered) {
+        return bUnanswered - aUnanswered;
+      }
+      
+      // Then by timestamp (newer first)
+      return b.timestamp - a.timestamp;
+    });
+    
+    console.log(`✅ Final result: ${filtered.length} questions`);
+    console.log('=====================================\n');
+    
+    setDisplayedQuestions(filtered);
+  }, [filters, allQuestions, fuzzySearchQuestions]);
+  
+  // Apply filters when filters or questions change
+  useEffect(() => {
+    applyAllFilters();
+  }, [applyAllFilters]);
 
   function handleSearch(query: string) {
-    setSearchQuery(query);
-    setShowingUnanswered(false);
-    
     // Clear existing timeout
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
@@ -193,33 +258,14 @@ export default function QuestionsScreen() {
     
     // Debounce search for better performance
     searchTimeoutRef.current = setTimeout(() => {
-      if (!query.trim()) {
-        // Reset to all questions (respecting category filter)
-        applyFilters(selectedCategory, '');
-        return;
-      }
-      
-      // Apply fuzzy search
-      const searchResults = fuzzySearchQuestions(query, allQuestions);
-      setDisplayedQuestions(searchResults);
+      setFilters(prev => ({ ...prev, searchQuery: query }));
     }, 300); // 300ms debounce
   }
   
-  function applyFilters(category: QuestionCategory | 'all', search: string = searchQuery) {
-    setShowingUnanswered(false);
-    let filtered = allQuestions;
-    
-    // Apply category filter
-    if (category !== 'all') {
-      filtered = filtered.filter(q => q.category === category);
-    }
-    
-    // Apply search if exists
-    if (search.trim()) {
-      filtered = fuzzySearchQuestions(search, filtered);
-    }
-    
-    setDisplayedQuestions(filtered);
+  function handleCategoryChange(category: QuestionCategory | 'all') {
+    console.log(`🏷️ Category changed: ${filters.category} → ${category}`);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setFilters(prev => ({ ...prev, category }));
   }
 
   function handleAskQuestion() {
@@ -231,15 +277,14 @@ export default function QuestionsScreen() {
   }
 
   const handleShowUnanswered = () => {
-    // Add haptic feedback
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     
-    // Filter to show only unanswered questions
-    const unanswered = allQuestions.filter(q => !q.answer);
-    setDisplayedQuestions(unanswered);
-    setSelectedCategory('all');
-    setSearchQuery('');
-    setShowingUnanswered(true);
+    // Toggle unanswered filter WITHOUT resetting category
+    setFilters(prev => ({
+      ...prev,
+      showOnlyUnanswered: !prev.showOnlyUnanswered,
+      searchQuery: '' // Clear search when toggling
+    }));
     
     // Scroll to top
     scrollViewRef.current?.scrollTo({ y: 0, animated: true });
@@ -311,10 +356,10 @@ export default function QuestionsScreen() {
               style={[styles.searchInput, { color: colors.text.primary }]}
               placeholder="חפש שאלה..."
               placeholderTextColor={colors.text.secondary}
-              value={searchQuery}
+              value={filters.searchQuery}
               onChangeText={handleSearch}
             />
-            {searchQuery.length > 0 && (
+            {filters.searchQuery.length > 0 && (
               <Pressable onPress={() => handleSearch('')} hitSlop={10}>
                 <Ionicons name="close-circle" size={20} color={colors.text.secondary} />
               </Pressable>
@@ -349,23 +394,20 @@ export default function QuestionsScreen() {
               style={[
                 styles.categoryChip,
                 { backgroundColor: colors.surface.card },
-                selectedCategory === 'all' && { backgroundColor: colors.primary.main }
+                filters.category === 'all' && { backgroundColor: colors.primary.main }
               ]}
-              onPress={() => {
-                setSelectedCategory('all');
-                applyFilters('all');
-              }}
+              onPress={() => handleCategoryChange('all')}
             >
               <ThemedText style={[
                 styles.categoryText,
-                { color: selectedCategory === 'all' ? colors.text.onPrimary : colors.text.primary }
+                { color: filters.category === 'all' ? colors.text.onPrimary : colors.text.primary }
               ]}>
                 הכל ({allQuestions.length})
               </ThemedText>
             </Pressable>
             {categories.map(([key, label]) => {
               const count = allQuestions.filter(q => q.category === key).length;
-              const isSelected = selectedCategory === key;
+              const isSelected = filters.category === key;
               return (
                 <Pressable
                   key={key}
@@ -374,11 +416,7 @@ export default function QuestionsScreen() {
                     { backgroundColor: colors.surface.card },
                     isSelected && { backgroundColor: colors.primary.main }
                   ]}
-                  onPress={() => {
-                    const category = key as QuestionCategory;
-                    setSelectedCategory(category);
-                    applyFilters(category);
-                  }}
+                  onPress={() => handleCategoryChange(key as QuestionCategory)}
                 >
                   <ThemedText style={[
                     styles.categoryText,
@@ -393,7 +431,7 @@ export default function QuestionsScreen() {
         </View>
 
         {/* Popular Questions */}
-        {!searchQuery && popularQuestions.length > 0 && (
+        {!filters.searchQuery && !filters.showOnlyUnanswered && popularQuestions.length > 0 && (
           <View style={styles.section}>
             <ThemedText style={[styles.sectionTitle, { color: colors.text.primary }]}>
               🔥 שאלות פופולריות
@@ -413,10 +451,12 @@ export default function QuestionsScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <ThemedText style={[styles.sectionTitle, { color: colors.text.primary }]}>
-              {showingUnanswered 
+              {filters.showOnlyUnanswered 
                 ? '⏰ שאלות ממתינות לתשובה' 
-                : searchQuery 
-                ? '🔍 תוצאות חיפוש' 
+                : filters.searchQuery 
+                ? '🔍 תוצאות חיפוש'
+                : filters.category !== 'all'
+                ? `📚 קטגוריה: ${CATEGORY_LABELS[filters.category]}`
                 : '📋 כל השאלות'}
             </ThemedText>
             <ThemedText style={[styles.resultCount, { color: colors.text.secondary }]}>
@@ -427,11 +467,11 @@ export default function QuestionsScreen() {
             <View style={styles.emptyState}>
               <Ionicons name="chatbubbles-outline" size={64} color={colors.text.secondary} />
               <ThemedText style={[styles.emptyText, { color: colors.text.secondary }]}>
-                {searchQuery 
+                {filters.searchQuery 
                   ? 'לא נמצאו תוצאות רלוונטיות לחיפוש שלך' 
                   : 'עדיין אין שאלות בקטגוריה זו'}
               </ThemedText>
-              {searchQuery ? (
+              {filters.searchQuery ? (
                 <ThemedText style={[styles.emptyHint, { color: colors.text.secondary, opacity: 0.7 }]}>
                   נסה לחפש במילים אחרות או בקטגוריה אחרת
                 </ThemedText>

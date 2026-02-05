@@ -120,17 +120,89 @@ export async function incrementQuestionViews(questionId: string): Promise<void> 
 }
 
 // Mark as helpful
-export async function markAsHelpful(questionId: string, helpful: boolean): Promise<void> {
+export async function markAsHelpful(
+  questionId: string,
+  helpful: boolean,
+  userId?: string,
+  previousRating?: boolean | null
+): Promise<void> {
   const allQuestions = await getAllQuestions();
   const question = allQuestions.find(q => q.id === questionId);
   
   if (question) {
+    // Remove previous rating if exists
+    if (previousRating === true) {
+      question.stats.helpful = Math.max(0, question.stats.helpful - 1);
+    } else if (previousRating === false) {
+      question.stats.notHelpful = Math.max(0, question.stats.notHelpful - 1);
+    }
+    
+    // Add new rating
     if (helpful) {
       question.stats.helpful++;
     } else {
       question.stats.notHelpful++;
     }
+    
     await AsyncStorage.setItem(STORAGE_KEYS.QUESTIONS, JSON.stringify(allQuestions));
+    
+    // Save user's rating only if userId is provided
+    if (userId) {
+      await saveUserRating(questionId, userId, helpful);
+    }
+  }
+}
+
+// Save user's rating for a question
+export async function saveUserRating(
+  questionId: string,
+  userId: string,
+  helpful: boolean
+): Promise<void> {
+  try {
+    const key = `@kitzur_user_ratings_${userId}`;
+    const stored = await AsyncStorage.getItem(key);
+    const ratings = stored ? JSON.parse(stored) : {};
+    ratings[questionId] = helpful;
+    await AsyncStorage.setItem(key, JSON.stringify(ratings));
+  } catch (error) {
+    console.error('Failed to save user rating:', error);
+  }
+}
+
+// Get user's rating for a question
+export async function getUserRating(
+  questionId: string,
+  userId: string
+): Promise<boolean | null> {
+  if (!userId) return null;
+  
+  try {
+    const key = `@kitzur_user_ratings_${userId}`;
+    const stored = await AsyncStorage.getItem(key);
+    if (!stored) return null;
+    const ratings = JSON.parse(stored);
+    return ratings[questionId] !== undefined ? ratings[questionId] : null;
+  } catch (error) {
+    console.error('Failed to get user rating:', error);
+    return null;
+  }
+}
+
+// Remove user's rating
+export async function removeUserRating(
+  questionId: string,
+  userId: string
+): Promise<void> {
+  try {
+    const key = `@kitzur_user_ratings_${userId}`;
+    const stored = await AsyncStorage.getItem(key);
+    if (!stored) return;
+    const ratings = JSON.parse(stored);
+    delete ratings[questionId];
+    await AsyncStorage.setItem(key, JSON.stringify(ratings));
+  } catch (error) {
+    console.error('Failed to remove user rating:', error);
   }
 }
 

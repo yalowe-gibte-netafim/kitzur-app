@@ -14,8 +14,11 @@ import {
   getAllQuestions,
   incrementQuestionViews,
   markAsHelpful,
-  calculateTrustScore
+  calculateTrustScore,
+  getUserRating,
+  removeUserRating
 } from '@/utils/questionsManager';
+import { getDeviceId } from '@/utils/deviceId';
 import { CATEGORY_LABELS, APPROVAL_LABELS } from '@/types/questions';
 import type { Question, HalachicSource } from '@/types/questions';
 import * as Haptics from 'expo-haptics';
@@ -27,14 +30,26 @@ export default function QuestionDetailScreen() {
   
   const [question, setQuestion] = useState<Question | null>(null);
   const [loading, setLoading] = useState(true);
-  const [hasMarkedHelpful, setHasMarkedHelpful] = useState(false);
+  const [userRating, setUserRating] = useState<boolean | null>(null);
+  const [userId, setUserId] = useState<string>('');
 
   useEffect(() => {
-    loadQuestion();
-  }, [id]);
+    initializeUser();
+  }, []);
+
+  useEffect(() => {
+    if (userId) {
+      loadQuestion();
+    }
+  }, [id, userId]);
+
+  async function initializeUser() {
+    const deviceId = await getDeviceId();
+    setUserId(deviceId);
+  }
 
   async function loadQuestion() {
-    if (!id) return;
+    if (!id || !userId) return;
     
     setLoading(true);
     try {
@@ -43,6 +58,10 @@ export default function QuestionDetailScreen() {
       if (found) {
         setQuestion(found);
         await incrementQuestionViews(id);
+        
+        // Load user's previous rating
+        const rating = await getUserRating(id, userId);
+        setUserRating(rating);
       }
     } catch (error) {
       console.error('Failed to load question:', error);
@@ -52,20 +71,39 @@ export default function QuestionDetailScreen() {
   }
 
   async function handleMarkHelpful(isHelpful: boolean) {
-    if (!id || hasMarkedHelpful) return;
+    if (!id || !userId) return;
     
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      await markAsHelpful(id, isHelpful);
-      setHasMarkedHelpful(true);
       
-      // Reload question to get updated stats
-      await loadQuestion();
+      // If clicking the same rating again, remove it
+      if (userRating === isHelpful) {
+        // Remove the rating
+        await markAsHelpful(id, isHelpful, userId, userRating);
+        await removeUserRating(id, userId);
+        setUserRating(null);
+        
+        // Reload question to get updated stats
+        await loadQuestion();
+        
+        Alert.alert(
+          '🔄 בוטל',
+          'דירוגך בוטל'
+        );
+      } else {
+        // Add or change rating
+        await markAsHelpful(id, isHelpful, userId, userRating);
+        setUserRating(isHelpful);
+        
+        // Reload question to get updated stats
+        await loadQuestion();
+        
+        Alert.alert(
+          '✅ תודה',
+          isHelpful ? 'דירוגך נרשם - התשובה עזרה לך!' : 'דירוגך נרשם. נשתדל לשפר'
+        );
+      }
       
-      Alert.alert(
-        '✅ תודה',
-        isHelpful ? 'דירוגך נרשם - התשובה עזרה לך!' : 'דירוגך נרשם. נשתדל לשפר'
-      );
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (error) {
       console.error('Failed to mark helpful:', error);
@@ -261,20 +299,21 @@ export default function QuestionDetailScreen() {
                 <Pressable
                   style={[
                     styles.helpfulButton,
-                    { backgroundColor: colors.surface.card, borderColor: Colors.light.semantic.success },
-                    hasMarkedHelpful && styles.helpfulButtonDisabled
+                    { 
+                      backgroundColor: userRating === true ? Colors.light.semantic.success : colors.surface.card,
+                      borderColor: Colors.light.semantic.success 
+                    }
                   ]}
                   onPress={() => handleMarkHelpful(true)}
-                  disabled={hasMarkedHelpful}
                 >
                   <Ionicons 
-                    name="thumbs-up" 
+                    name={userRating === true ? "thumbs-up" : "thumbs-up-outline"}
                     size={20} 
-                    color={hasMarkedHelpful ? colors.text.secondary : Colors.light.semantic.success} 
+                    color={userRating === true ? "#FFFFFF" : Colors.light.semantic.success} 
                   />
                   <ThemedText style={[
                     styles.helpfulButtonText,
-                    { color: hasMarkedHelpful ? colors.text.secondary : Colors.light.semantic.success }
+                    { color: userRating === true ? "#FFFFFF" : Colors.light.semantic.success }
                   ]}>
                     כן ({question.stats.helpful})
                   </ThemedText>
@@ -282,20 +321,21 @@ export default function QuestionDetailScreen() {
                 <Pressable
                   style={[
                     styles.helpfulButton,
-                    { backgroundColor: colors.surface.card, borderColor: Colors.light.semantic.error },
-                    hasMarkedHelpful && styles.helpfulButtonDisabled
+                    { 
+                      backgroundColor: userRating === false ? Colors.light.semantic.error : colors.surface.card,
+                      borderColor: Colors.light.semantic.error 
+                    }
                   ]}
                   onPress={() => handleMarkHelpful(false)}
-                  disabled={hasMarkedHelpful}
                 >
                   <Ionicons 
-                    name="thumbs-down" 
+                    name={userRating === false ? "thumbs-down" : "thumbs-down-outline"}
                     size={20} 
-                    color={hasMarkedHelpful ? colors.text.secondary : Colors.light.semantic.error} 
+                    color={userRating === false ? "#FFFFFF" : Colors.light.semantic.error} 
                   />
                   <ThemedText style={[
                     styles.helpfulButtonText,
-                    { color: hasMarkedHelpful ? colors.text.secondary : Colors.light.semantic.error }
+                    { color: userRating === false ? "#FFFFFF" : Colors.light.semantic.error }
                   ]}>
                     לא ({question.stats.notHelpful})
                   </ThemedText>
